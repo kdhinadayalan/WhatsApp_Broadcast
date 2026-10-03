@@ -70,10 +70,13 @@ def whatsapp_webhook(request):
 
     if request.method == 'POST':
         try:
+            from ai_assistant.services.inquiry_handler import handle_student_inquiry
             data = json.loads(request.body)
             for entry in data.get('entry', []):
                 for change in entry.get('changes', []):
                     value = change.get('value', {})
+                    
+                    # 1. Message delivery status receipts
                     statuses = value.get('statuses', [])
                     for s in statuses:
                         update_delivery_status(
@@ -81,6 +84,21 @@ def whatsapp_webhook(request):
                             new_status=s.get('status', ''),
                             timestamp=s.get('timestamp', ''),
                         )
+
+                    # 2. Incoming student messages via WhatsApp
+                    messages = value.get('messages', [])
+                    for msg in messages:
+                        if msg.get('type') == 'text':
+                            from_phone = msg.get('from', '')
+                            text_body = msg.get('text', {}).get('body', '')
+                            if from_phone and text_body:
+                                logger.info(f"Incoming student question from {from_phone}: {text_body}")
+                                handle_student_inquiry(
+                                    phone_number=from_phone,
+                                    question=text_body,
+                                    source='WHATSAPP',
+                                    send_whatsapp_reply=True
+                                )
         except Exception as e:
             logger.error(f"Webhook processing error: {e}")
 

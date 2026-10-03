@@ -35,4 +35,28 @@ export const retryFailedMessages = (id) => api.post(`/broadcasts/${id}/retry-fai
 // Dashboard
 export const getDashboardStats = () => api.get('/dashboard/stats/');
 
+// AI Assistant & Knowledge Base
+export const getKnowledgeCategories = () => api.get('/ai-assistant/categories/');
+export const createKnowledgeCategory = (data) => api.post('/ai-assistant/categories/', data);
+export const getKnowledgeItems = (params) => api.get('/ai-assistant/items/', { params });
+export const createKnowledgeItem = (data) => api.post('/ai-assistant/items/', data);
+export const updateKnowledgeItem = (id, data) => api.put(`/ai-assistant/items/${id}/`, data);
+export const deleteKnowledgeItem = (id) => api.delete(`/ai-assistant/items/${id}/`);
+
+export const getFAQs = (params) => api.get('/ai-assistant/faqs/', { params });
+export const createFAQ = (data) => api.post('/ai-assistant/faqs/', data);
+export const updateFAQ = (id, data) => api.put(`/ai-assistant/faqs/${id}/`, data);
+export const deleteFAQ = (id) => api.delete(`/ai-assistant/faqs/${id}/`);
+
+export const getKnowledgeDocuments = (params) => api.get('/ai-assistant/documents/', { params });
+export const uploadKnowledgeDocument = (formData) => api.post('/ai-assistant/documents/', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+});
+export const deleteKnowledgeDocument = (id) => api.delete(`/ai-assistant/documents/${id}/`);
+
+export const simulateAIChat = (data) => api.post('/ai-assistant/chat/', data);
+export const syncOpenClawAgent = () => api.post('/ai-assistant/sync-agent/');
+export const getAIAssistantStats = () => api.get('/ai-assistant/stats/');
+export const getInquiryLogs = (params) => api.get('/ai-assistant/inquiries/', { params });
+
 export default api;

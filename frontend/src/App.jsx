@@ -8,6 +8,8 @@ import Templates from './pages/Templates';
 import BroadcastComposer from './pages/BroadcastComposer';
 import Broadcasts from './pages/Broadcasts';
 import BroadcastDetail from './pages/BroadcastDetail';
+import KnowledgeBase from './pages/KnowledgeBase';
+import AIAssistantTest from './pages/AIAssistantTest';
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="/broadcast/new" element={<BroadcastComposer />} />
           <Route path="/broadcasts" element={<Broadcasts />} />
           <Route path="/broadcasts/:id" element={<BroadcastDetail />} />
+          <Route path="/knowledge-base" element={<KnowledgeBase />} />
+          <Route path="/ai-assistant" element={<AIAssistantTest />} />
         </Routes>
       </Layout>
     </BrowserRouter>

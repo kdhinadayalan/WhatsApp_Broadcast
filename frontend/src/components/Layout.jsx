@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, FolderOpen, FileText, Send, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Users, FolderOpen, FileText, Send, BarChart3, BookOpen, Bot } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -8,6 +8,8 @@ const navItems = [
   { path: '/templates', label: 'Templates', icon: FileText },
   { path: '/broadcast/new', label: 'New Broadcast', icon: Send },
   { path: '/broadcasts', label: 'Broadcasts', icon: BarChart3 },
+  { path: '/knowledge-base', label: 'Knowledge Base', icon: BookOpen },
+  { path: '/ai-assistant', label: 'AI WhatsApp Bot', icon: Bot },
 ];
 
 export default function Layout({ children }) {
