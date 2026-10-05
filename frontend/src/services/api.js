@@ -58,5 +58,6 @@ export const simulateAIChat = (data) => api.post('/ai-assistant/chat/', data);
 export const syncOpenClawAgent = () => api.post('/ai-assistant/sync-agent/');
 export const getAIAssistantStats = () => api.get('/ai-assistant/stats/');
 export const getInquiryLogs = (params) => api.get('/ai-assistant/inquiries/', { params });
+export const getOpenClawStatus = () => api.get('/ai-assistant/openclaw-status/');
 
 export default api;

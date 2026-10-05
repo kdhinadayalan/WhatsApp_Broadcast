@@ -61,8 +61,8 @@ Tags: mca subjects, mca syllabus, subjects in mca, mca courses, what are the mca
 
 ### HOD of MCA Department & Faculty Details
 • *Department*: Master of Computer Applications (MCA)
-• *Head of the Department (HOD)*: *Dr. D.Jayachitra, M.C.A., M.Phil., Ph.D.*
-• *HOD Cabin*: Sujatha Block, 2nd floor
+• *Head of the Department (HOD)*: *Dr. M. Muralidharan, M.C.A., M.Phil., Ph.D.*
+• *HOD Cabin*: PG Block, First Floor, Room No. 204
 • *Department Email*: hod.mca@nmc.ac.in
 • *Key Faculty Members*:
   - Dr. S. Senthil Kumar (Associate Professor - Cloud Computing & AI)
@@ -71,7 +71,7 @@ Tags: mca subjects, mca syllabus, subjects in mca, mca courses, what are the mca
 Tags: mca hod, hod of mca, head of mca, mca faculty, muralidharan, mca department head
 
 ### List of Department Heads (HODs)
-• *MCA*: Dr. D.Jayachitra (hod.mca@nmc.ac.in)
+• *MCA*: Dr. M. Muralidharan (hod.mca@nmc.ac.in)
 • *Computer Science*: Dr. K. Mani (hod.cs@nmc.ac.in)
 • *Data Science*: Prof. T. Saravanan (hod.ds@nmc.ac.in)
 • *Mathematics*: Dr. V. Balasubramanian (hod.maths@nmc.ac.in)

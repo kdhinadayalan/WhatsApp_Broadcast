@@ -174,3 +174,11 @@ def ai_assistant_stats(request):
         'total_faqs': FAQItem.objects.count(),
         'total_documents': KnowledgeDocument.objects.count(),
     })
+
+
+@api_view(['GET'])
+def openclaw_status(request):
+    """Inspect and report OpenClaw connection, gateway status, and workspace health."""
+    from ai_assistant.services.openclaw_service import inspect_openclaw_status
+    status_info = inspect_openclaw_status()
+    return Response(status_info)

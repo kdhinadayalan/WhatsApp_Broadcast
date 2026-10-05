@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Bot, Send, Sparkles, Clock, CheckCheck, RefreshCw,
-  Search, ShieldCheck, Database, MessageSquare, AlertCircle
+  Search, ShieldCheck, Database, MessageSquare, AlertCircle,
+  Cpu, CheckCircle2, Server, Terminal, ArrowRight, Zap
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { simulateAIChat, getInquiryLogs } from '../services/api';
+import { simulateAIChat, getInquiryLogs, getOpenClawStatus, syncOpenClawAgent } from '../services/api';
 
 const SAMPLE_QUESTIONS = [
   "Who is the HOD of MCA?",
@@ -32,6 +33,11 @@ export default function AIAssistantTest() {
   const [loading, setLoading] = useState(false);
   const [latestResult, setLatestResult] = useState(null);
 
+  // OpenClaw Engine State
+  const [openClaw, setOpenClaw] = useState(null);
+  const [openClawLoading, setOpenClawLoading] = useState(false);
+  const [syncingKnowledge, setSyncingKnowledge] = useState(false);
+
   // Inquiry Logs State
   const [logs, setLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -39,12 +45,38 @@ export default function AIAssistantTest() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    loadOpenClawHealth();
     loadInquiries();
   }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const loadOpenClawHealth = async () => {
+    setOpenClawLoading(true);
+    try {
+      const res = await getOpenClawStatus();
+      setOpenClaw(res.data);
+    } catch {
+      // quiet fallback
+    } finally {
+      setOpenClawLoading(false);
+    }
+  };
+
+  const handleSyncKnowledge = async () => {
+    setSyncingKnowledge(true);
+    try {
+      const res = await syncOpenClawAgent();
+      toast.success(res.data.message || 'Knowledge base exported to OpenClaw workspace!');
+      loadOpenClawHealth();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to sync knowledge to OpenClaw');
+    } finally {
+      setSyncingKnowledge(false);
+    }
+  };
 
   const loadInquiries = async () => {
     setLogsLoading(true);
@@ -90,21 +122,21 @@ export default function AIAssistantTest() {
         status: data.status,
         intent: data.intent,
         latency_ms: data.latency_ms,
+        engine: data.engine,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
       setMessages((prev) => [...prev, botMsg]);
       loadInquiries();
-    } catch (err) {
+    } catch {
       toast.error('Failed to get response from AI assistant');
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           sender: 'bot',
-          text: "I don't have this information currently. Please contact the college office for the correct details.",
-          status: 'FALLBACK',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text: "I am having trouble connecting to the service right now. Please try again or contact the office.",
+          timestamp: timeStr,
         }
       ]);
     } finally {
@@ -119,25 +151,78 @@ export default function AIAssistantTest() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Bot className="text-green-700" size={28} />
-            WhatsApp AI Assistant Simulator
+            WhatsApp AI Assistant & OpenClaw Provision
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Test student questions with OpenClaw & College RAG knowledge retrieval in real time.
+            Official College AI Assistant wired with OpenClaw Autonomous Agent & Zero-Hallucination Grounding.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border text-xs text-gray-600">
+          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border text-xs text-gray-600 shadow-2xs">
             <ShieldCheck size={16} className="text-green-600" />
-            <span>Strict Zero-Hallucination Guardrail Active</span>
+            <span>Strict Grounding Active</span>
           </div>
           <button
             onClick={loadInquiries}
-            className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm shadow-sm"
+            className="p-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm shadow-2xs"
             title="Refresh Inquiries"
           >
             <RefreshCw size={16} className={logsLoading ? 'animate-spin' : ''} />
           </button>
+        </div>
+      </div>
+
+      {/* OpenClaw Engine Connection Status Card */}
+      <div className="bg-gradient-to-r from-emerald-900 via-green-900 to-teal-950 text-white rounded-2xl p-5 shadow-sm border border-emerald-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 bg-emerald-800/80 rounded-xl border border-emerald-600/50 text-emerald-300">
+              <Cpu size={24} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5">
+                <h3 className="font-bold text-base tracking-tight">OpenClaw Autonomous Agent Engine</h3>
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                  openClaw?.connected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${openClaw?.connected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+                  {openClaw?.connected ? 'CONNECTED & PROVISIONED' : 'INITIALIZING'}
+                </span>
+              </div>
+              <p className="text-xs text-emerald-200/80 mt-1">
+                OpenClaw Gateway: <code className="bg-emerald-950/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-emerald-300">{openClaw?.gateway_url || 'http://127.0.0.1:18789'}</code>
+                {openClaw?.gateway_online && (
+                  <span className="ml-2 text-emerald-400 font-semibold">● Gateway Live ({openClaw.gateway_ping_ms}ms)</span>
+                )}
+                {' • '}
+                Agent: <span className="font-semibold text-white">college_assistant</span>
+                {' • '}
+                CLI: <span className="text-emerald-300 font-mono text-[11px]">{openClaw?.cli_version || 'OpenClaw CLI'}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+            <button
+              onClick={handleSyncKnowledge}
+              disabled={syncingKnowledge}
+              className="flex items-center gap-2 bg-emerald-700/80 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-medium border border-emerald-500/40 transition shadow-xs disabled:opacity-50"
+              title="Export all database categories, items, and FAQs into OpenClaw agent markdown catalog"
+            >
+              <Zap size={14} className={syncingKnowledge ? 'animate-spin text-amber-300' : 'text-emerald-300'} />
+              {syncingKnowledge ? 'Syncing...' : 'Sync Knowledge to Agent'}
+            </button>
+            <button
+              onClick={loadOpenClawHealth}
+              disabled={openClawLoading}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-xs font-medium border border-white/10 transition"
+              title="Ping OpenClaw Gateway"
+            >
+              <RefreshCw size={14} className={openClawLoading ? 'animate-spin' : ''} />
+              Probe Gateway
+            </button>
+          </div>
         </div>
       </div>
 
@@ -201,7 +286,7 @@ export default function AIAssistantTest() {
               <div className="flex justify-start">
                 <div className="bg-white rounded-2xl px-4 py-2 text-xs text-gray-500 shadow-sm flex items-center gap-2">
                   <span className="animate-spin text-green-700">⚙️</span>
-                  <span>AI Assistant is analyzing knowledge base...</span>
+                  <span>OpenClaw Agent analyzing college knowledge base...</span>
                 </div>
               </div>
             )}
@@ -223,26 +308,26 @@ export default function AIAssistantTest() {
             ))}
           </div>
 
-          {/* Input Box */}
+          {/* WhatsApp Input Bar */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 bg-gray-50 border-t flex items-center gap-2"
+            className="p-3 bg-gray-50 border-t border-gray-200 flex items-center gap-2"
           >
             <input
               type="text"
-              placeholder="Ask any college question (e.g. Who is HOD of MCA?)..."
+              placeholder="Ask a question about NMC College..."
               value={inputQuestion}
               onChange={(e) => setInputQuestion(e.target.value)}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex-1 bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 shadow-inner"
             />
             <button
               type="submit"
               disabled={loading || !inputQuestion.trim()}
-              className="p-2.5 bg-green-700 text-white rounded-xl hover:bg-green-800 disabled:opacity-50 transition-colors shadow-sm"
+              className="p-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl disabled:opacity-50 transition shadow-sm"
             >
               <Send size={18} />
             </button>
@@ -269,7 +354,7 @@ export default function AIAssistantTest() {
             {!latestResult ? (
               <div className="text-center py-16 text-gray-400 text-xs">
                 <Sparkles className="mx-auto text-gray-300 mb-2" size={32} />
-                Send a question in the chat to see real-time Knowledge Base sources retrieved by the RAG engine.
+                Send a question in the chat to see real-time Knowledge Base sources retrieved and supplied to OpenClaw.
               </div>
             ) : (
               <>
@@ -277,6 +362,10 @@ export default function AIAssistantTest() {
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Detected Intent:</span>
                     <span className="font-semibold text-gray-900">{latestResult.intent || 'General'}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Engine Used:</span>
+                    <span className="font-semibold text-emerald-800 font-mono text-[11px]">{latestResult.engine || 'OpenClaw'}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Response Latency:</span>

@@ -14,4 +14,5 @@ urlpatterns = [
     path('chat/', views.chat_simulator, name='ai-chat-simulator'),
     path('sync-agent/', views.sync_agent_knowledge, name='ai-sync-agent'),
     path('stats/', views.ai_assistant_stats, name='ai-assistant-stats'),
+    path('openclaw-status/', views.openclaw_status, name='openclaw-status'),
 ]
